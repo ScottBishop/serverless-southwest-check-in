@@ -62,45 +62,50 @@ class SesMailNotification(object):
         return self.source
 
 
-def send_confirmation(to, **kwargs):
-    """
-    Sends confirmation email via SES
-    """
-
-    source = kwargs.get('source', os.environ.get('EMAIL_SOURCE'))
-    bcc = kwargs.get('bcc', os.environ.get('EMAIL_BCC'))
-
+class ConfirmationEmail(object):
     subject = "Your checkin has been scheduled!"
-    body = ("Thanks for scheduling a checkin for your next flight. I will set "
-            "my alarm and wake up to check you in 24 hours before your "
-            "departure. Fly safe!")
 
-    msg = {
-        'Subject': {
-            'Data': subject,
-            'Charset': 'UTF-8'
-        },
-        'Body': {
-            'Text': {
-                'Data': body,
+    def __init__(self, reservation):
+        self.reservation = reservation
+
+    def body(self):
+        text = ("Thanks for scheduling a checkin for your next flight. I will set "
+                "my alarm and wake up to check you in 24 hours before your "
+                "departure. Fly safe!")
+        return text
+
+    def message(self):
+        msg = {
+            'Subject': {
+                'Data': self.subject,
                 'Charset': 'UTF-8'
+            },
+            'Body': {
+                'Text': {
+                    'Data': self.body(),
+                    'Charset': 'UTF-8'
+                }
             }
         }
-    }
 
-    destination = dict(ToAddresses=[to])
-    if bcc:
-        destination['BccAddresses'] = [bcc]
+        return msg
 
-    ses = boto3.client('ses')
+    def send(self, to, **kwargs):
+        source = kwargs.get('source', os.environ.get('EMAIL_SOURCE'))
+        bcc = kwargs.get('bcc', os.environ.get('EMAIL_BCC'))
 
-    log.info("Sending confirmation email to {}".format(to))
+        destination = dict(ToAddresses=[to])
 
-    return ses.send_email(
-        Source=source,
-        Destination=destination,
-        Message=msg
-    )
+        if bcc:
+            destination['BccAddresses'] = [bcc]
+
+        log.info("Sending confirmation email to {}".format(to))
+        ses = boto3.client('ses')
+        return ses.send_email(
+            Source=source,
+            Destination=destination,
+            Message=self.message()
+        )
 
 
 def find_name_and_confirmation_number(msg):

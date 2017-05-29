@@ -21,7 +21,7 @@ class TestSesMailNotification(unittest.TestCase):
         assert msg.source == "prvs=31198f0cd=gwb@example.com"
 
 
-class TestSendEmail(unittest.TestCase):
+class TestConfirmationEmail(unittest.TestCase):
 
     @mock.patch('boto3.client')
     def test_send_confirmation_destination(self, mock_client):
@@ -29,7 +29,9 @@ class TestSendEmail(unittest.TestCase):
         mock_client.return_value = ses_mock
         expected_destination = {'ToAddresses': ['gwb@example.com']}
 
-        email.send_confirmation("gwb@example.com")
+        # TODO(dw): Mock reservation
+        e = email.ConfirmationEmail(None)
+        e.send("gwb@example.com")
         assert ses_mock.send_email.call_args[1]['Destination'] == expected_destination
 
     @mock.patch('boto3.client')
@@ -38,5 +40,7 @@ class TestSendEmail(unittest.TestCase):
         mock_client.return_value = ses_mock
         expected_destination = {'ToAddresses': ['gwb@example.com'], 'BccAddresses': ['bcc@example.com']}
 
-        email.send_confirmation("gwb@example.com", bcc="bcc@example.com")
+        # TODO(dw): Mock reservation
+        e = email.ConfirmationEmail(None)
+        e.send("gwb@example.com", bcc="bcc@example.com")
         assert ses_mock.send_email.call_args[1]['Destination'] == expected_destination
