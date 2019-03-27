@@ -14,7 +14,10 @@ resource "aws_ses_active_receipt_rule_set" "sw_check_in" {
 resource "aws_ses_receipt_rule" "store" {
   name          = "sw-check-in"
   rule_set_name = "sw-check-in"
-  recipients    = ["${var.recipients}"]
+  recipients    = [
+    "scottbishop70@gmail.com",
+    "serverless-southwest-check-in.com"
+  ]
   enabled       = true
   scan_enabled  = true
 
