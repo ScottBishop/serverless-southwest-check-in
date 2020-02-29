@@ -57,7 +57,7 @@ class Reservation():
         self.response = response
 
         # Second of the minute to use for check in times
-        self.check_in_seconds = 5
+        self.check_in_seconds = 3
 
     def __repr__(self):
         return "<Reservation {}>".format(self.confirmation_number)
